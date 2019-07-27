@@ -129,6 +129,14 @@ Vagrant.configure("2") do |config|
 
             if opts[:type] == "master"
                 config.vm.provision "shell", inline: $configureMaster
+                # allow SSH access to node
+                config.vm.network :forwarded_port, guest: 22, host: 2222, host_ip: "0.0.0.0", auto_correct: true
+                # allow kubectl access
+                config.vm.network :forwarded_port, guest: 6443, host: 6443, auto_correct: true
+                # added 100 ports in the range of k8s NodePort (30000:32767) for play with services
+                for i in 30000..30100
+                    config.vm.network :forwarded_port, guest: i, host: i, auto_correct: true
+                end
             else
                 config.vm.provision "shell", inline: $configureNode
             end
@@ -137,4 +145,4 @@ Vagrant.configure("2") do |config|
 
     end
 
-end 
+end
